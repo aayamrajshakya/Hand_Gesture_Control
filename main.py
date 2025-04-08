@@ -2,19 +2,28 @@ import os
 import cv2
 from cvzone.HandTrackingModule import HandDetector
 
-#variables
+import mediapipe as mp
+from utils import Controller
+
+# Initialize mediapipe
+mp_hands = mp.solutions.hands
+mp_drawing = mp.solutions.drawing_utils
+# hands = mp_hands.Hands(min_detection_confidence=0.7,
+#                       min_tracking_confidence=0.7)
+
+# Variables
 width, height = 1280, 720
 folderPath = "presentation"
 
-#camera setup
+# Camera setup
 cap = cv2.VideoCapture(0)
 cap.set(3, width)
 cap.set(4, height)
 
-#get list of presentation images and sort them
+# Get list of presentation images and sort them
 pathImages = sorted(os.listdir(folderPath), key=lambda x: int(os.path.splitext(x)[0]))
 
-#variables
+# Variables
 imgNumber = 0
 hs, ws = int(120*1.2), int(213*1.2)
 gesture_threshold = 300
@@ -26,39 +35,52 @@ buttonDelay = 30 # 30 frames
 detector = HandDetector(detectionCon=0.8, maxHands=1)
 
 while True:
-    #import images
+    # Import images
     success, img = cap.read()
-    img = cv2.flip(img, 1) # flip the image in the horizontal direction
+    img = cv2.flip(img, 1) # Flip the image in the horizontal direction
+    imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    with mp_hands.Hands() as hands:
+        results = hands.process(imgRGB)
     pathFullImage = os.path.join(folderPath, pathImages[imgNumber])
     imgCurrent = cv2.imread(pathFullImage)
 
-    # detecing hands
+    # Detecting hands
     hands, img = detector.findHands(img)
     cv2.line(img, (0, gesture_threshold), (width, gesture_threshold), (0, 255, 0), 10)
 
     if hands and buttonPressed is False:
-        hand = hands[0] # getting the first hand
-        fingers = detector.fingersUp(hand)
-        cx, cy = hand['center']
+        if results.multi_hand_landmarks:
+            Controller.hand_Landmarks = results.multi_hand_landmarks[0]
+            mp_drawing.draw_landmarks(img, Controller.hand_Landmarks, mp_hands.HAND_CONNECTIONS)
+            Controller.update_fingers_status()
+            Controller.cursor_moving()
+            Controller.detect_scrolling()
+            Controller.detect_zooming()
+            Controller.detect_clicking()
+            Controller.detect_dragging()
 
-        if cy <= gesture_threshold: #if hand is at the height of the face
-            # gesture 1 => go left 
-            if fingers == [1, 0, 0, 0, 0]:
-                if imgNumber > 0:
-                    buttonPressed = True
-                    imgNumber -= 1
-                print("left")
-            
-            # gesture 2 => go right 
-            if fingers == [0, 0, 0, 0, 1]:
-                if imgNumber < len(pathImages) - 1:
-                    buttonPressed = True
-                    imgNumber += 1
-                    print("Right")
+            hand = hands[0] # Getting the first hand
+            fingers = detector.fingersUp(hand)
+            cx, cy = hand['center']
 
-            # TODO: gesture 3 => show pointer
+            if cy <= gesture_threshold: # If hand is at the height of the face
+                # Gesture 1 => o left 
+                if fingers == [1, 0, 0, 0, 0]:
+                    if imgNumber > 0:
+                        buttonPressed = True
+                        imgNumber -= 1
+                    print("left")
+                
+                # Gesture 2 => go right 
+                if fingers == [0, 0, 0, 0, 1]:
+                    if imgNumber < len(pathImages) - 1:
+                        buttonPressed = True
+                        imgNumber += 1
+                        print("Right")
 
-    #button pressed iterations
+                # TODO: Gesture 3 => show pointer
+
+    # Button pressed iterations
     if buttonPressed:
         buttonCounter += 1
         if buttonCounter > buttonDelay:
@@ -66,7 +88,7 @@ while True:
             buttonPressed = False
 
 
-    # adding webcam image on the slide
+    # Adding webcam image on the slide
     imgSmall = cv2.resize(img, (ws, hs))
     h, w, _ = imgCurrent.shape
     imgCurrent[0:hs, w-ws:w] = imgSmall # Overlay the image to fix the camera feed at top-right
@@ -75,5 +97,5 @@ while True:
     cv2.imshow("Slides", imgCurrent)
 
     key = cv2.waitKey(1)
-    if key == ord('q'): # we break by pressing 'Q' on keyboard
+    if key == ord('q'): # We break by pressing 'Q' on keyboard
         break
