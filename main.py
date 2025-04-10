@@ -23,7 +23,7 @@ buttonPressed = False
 buttonCounter = 0
 buttonDelay = 30 # 30 frames
 annotations = [[]]
-annotationNumber = -1
+annotationNumber = 0
 annotationStart = False
 
 # Hand detector
@@ -52,23 +52,33 @@ while True:
         indexFinger = xVal, yVal
 
         if cy <= gesture_threshold: #if hand is at the height of the face
+            annotationStart = False
+
             # gesture 1 => go left 
             if fingers == [1, 0, 0, 0, 0]:
+                annotationStart = False
                 if imgNumber > 0:
                     buttonPressed = True
+                    annotations = [[]]
+                    annotationNumber = 0
                     imgNumber -= 1
                 print("left")
             
             # gesture 2 => go right 
             if fingers == [0, 0, 0, 0, 1]:
+                annotationStart = False
                 if imgNumber < len(pathImages) - 1:
                     buttonPressed = True
+                    annotations = [[]]
+                    annotationNumber = 0
                     imgNumber += 1
                     print("Right")
 
             # TODO: gesture 3 => show pointer
         if fingers == [0, 1, 1, 0, 0]:
             cv2.circle(imgCurrent, indexFinger,12, (0, 0, 255), cv2.FILLED)
+            annotationStart = False
+
             print("Point")
 
         # TODO: gesture 4 => draw pointer
@@ -82,6 +92,17 @@ while True:
             print("Draw")
         else:
             annotationStart= False
+
+        # TODO: gesture 5 => erase
+        if fingers == [0, 1, 1, 1, 0]:
+            if annotations:
+                if annotationNumber >=0:
+                    annotations.pop(-1) 
+                    annotationNumber -=1
+                    buttonPressed = True 
+    else:
+        annotationStart = False
+
 
 
     #button pressed iterations
