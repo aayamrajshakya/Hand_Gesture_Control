@@ -1,6 +1,7 @@
 import os
 import cv2
 from cvzone.HandTrackingModule import HandDetector
+import numpy as np
 
 #variables
 width, height = 1280, 720
@@ -40,6 +41,12 @@ while True:
         hand = hands[0] # getting the first hand
         fingers = detector.fingersUp(hand)
         cx, cy = hand['center']
+        lmList=hand['lmList']
+
+        #constrain values for easier drawing
+        xVal = int(np.interp(lmList[8][0] , [width //2, w] , [0, width]))
+        yVal = int(np.interp(lmList[8][1] , [150, height - 150] , [0, height]))
+        indexFinger = xVal, yVal
 
         if cy <= gesture_threshold: #if hand is at the height of the face
             # gesture 1 => go left 
@@ -57,6 +64,10 @@ while True:
                     print("Right")
 
             # TODO: gesture 3 => show pointer
+        if fingers == [0, 1, 1, 0, 0]:
+            cv2.circle(imgCurrent, indexFinger,12, (0, 0, 255), cv2.FILLED)
+            print("Draw")
+
 
     #button pressed iterations
     if buttonPressed:
