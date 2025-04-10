@@ -17,11 +17,11 @@ pathImages = sorted(os.listdir(folderPath), key=lambda x: int(os.path.splitext(x
 
 #variables
 imgNumber = 0
-hs, ws = int(120*1.2), int(213*1.2)
+hs, ws = int(120*1), int(213*1)
 gesture_threshold = 300
 buttonPressed = False
 buttonCounter = 0
-buttonDelay = 30 # 30 frames
+buttonDelay = 25 # 30 frames
 annotations = [[]]
 annotationNumber = 0
 annotationStart = False
@@ -45,10 +45,10 @@ while True:
         fingers = detector.fingersUp(hand)
         cx, cy = hand['center']
         lmList=hand['lmList']
-
+ 
         #constrain values for easier drawing
-        xVal = int(np.interp(lmList[8][0] , [width //2, w] , [0, width]))
-        yVal = int(np.interp(lmList[8][1] , [150, height - 150] , [0, height]))
+        xVal = int(np.interp(lmList[8][0] , [width //2, width] , [0, w]))
+        yVal = int(np.interp(lmList[8][1] , [150, height - 150] , [0, h]))
         indexFinger = xVal, yVal
 
         if cy <= gesture_threshold: #if hand is at the height of the face
