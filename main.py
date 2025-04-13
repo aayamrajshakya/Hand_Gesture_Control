@@ -7,7 +7,6 @@ import mediapipe as mp
 import pyautogui
 from utils import Controller
 
-
 def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     
@@ -34,9 +33,8 @@ def main() -> None:
 
     # Global variables
     width, height = pyautogui.size()
-    cap = cv2.VideoCapture(-1)      # Picks the first available webcam
+    cap = cv2.VideoCapture(0)
     cap.set(cv2.CAP_PROP_FPS, 60)   # Sets the fps of the video input
-
 
     if args.model == 'part1':
         folderPath = "presentation"
@@ -46,7 +44,7 @@ def main() -> None:
 
         # Variables
         imgNumber = 0
-        hs, ws = int(height / 10), int(width / 22)  # Webcam feed dimensions
+        hs, ws = int(height / 7), int(width / 8)  # Webcam feed dimensions
         gestureThreshold = int(height / 5)
         buttonPressed = False
         buttonCounter = 0
@@ -65,9 +63,16 @@ def main() -> None:
             pathFullImage = os.path.join(folderPath, pathImages[imgNumber])
             imgCurrent = cv2.imread(pathFullImage)
             
+            width_ = img.shape[1]
+
             # Detecting hands
             hands, img = detector.findHands(img)
             cv2.line(img, (0, gestureThreshold), (width, gestureThreshold), (0, 255, 0), 10)
+            
+            # Attaching webcam feed
+            webcamFeed = cv2.resize(img, (ws, hs))
+            h, w, _ = webcamFeed.shape; hi, wi, _ = imgCurrent.shape
+            imgCurrent[hi-h:hi, wi-w:wi] = webcamFeed # Positioned to bottom-right
 
             if hands and buttonPressed is False:
                 hand = hands[0]
@@ -76,8 +81,9 @@ def main() -> None:
                 lmList=hand['lmList']
         
                 # Constrain values for easier drawing
-                xVal = int(np.interp(lmList[8][0] , [width//4, width] , [0, 2.5*width]))
-                yVal = int(np.interp(lmList[8][1] , [40, gestureThreshold-10] , [0, height]))
+                # xVal = int(np.interp(lmList[8][0] , [50, 1000] , [0, wi*2]))
+                xVal = int(np.interp(lmList[8][0] , [(width_//2) + 20, width_ - 60] , [0, wi]))
+                yVal = int(np.interp(lmList[8][1] , [40, gestureThreshold-40] , [0, hi]))
                 indexFinger = xVal, yVal
 
                 if cy <= gestureThreshold:
@@ -85,7 +91,6 @@ def main() -> None:
 
                     # Gesture 1: Go left 
                     if fingers == [1, 0, 0, 0, 0]:
-                        print("Left")
                         annotationStart = False
                         if imgNumber > 0:
                             buttonPressed = True
@@ -95,7 +100,6 @@ def main() -> None:
                     
                     # Gesture 2: Go right 
                     if fingers == [0, 0, 0, 0, 1]:
-                        print("Right")
                         annotationStart = False
                         if imgNumber < len(pathImages) - 1:
                             buttonPressed = True
@@ -105,13 +109,11 @@ def main() -> None:
 
                     # Gesture 3: Show pointer
                 if fingers == [0, 1, 1, 0, 0]:
-                    print("Point")
                     cv2.circle(imgCurrent, indexFinger, 10, (0, 0, 255), cv2.FILLED)
                     annotationStart = False
 
                 # Gesture 4: Draw pointer
                 if fingers == [0, 1, 0, 0, 0]:
-                    print("Draw")
                     if annotationStart is False:
                         annotationStart = True
                         annotationNumber += 1
@@ -140,13 +142,8 @@ def main() -> None:
 
             for i in range (len(annotations)):
                 for j in range(len(annotations[i])):
-                    if j!=0:
-                        cv2.line(imgCurrent, annotations[i][j-1], annotations[i][j], (0,0,200),12)
-
-            # Attaching webcam feed
-            webcamFeed = cv2.resize(img, (ws, hs))
-            h, w, _ = imgCurrent.shape
-            imgCurrent[h-hs:h, w-ws:w] = webcamFeed # Positioned to bottom-right
+                    if j != 0:
+                        cv2.line(imgCurrent, annotations[i][j-1], annotations[i][j], (0, 0, 200), 12)
 
             # Maximize the screen
             cv2.namedWindow("Part 1", cv2.WINDOW_NORMAL)
@@ -156,7 +153,6 @@ def main() -> None:
                 break
 
     if args.model == 'part2':
-
         # Initiliaze mediapipe
         mp_hands = mp.solutions.hands
         hands = mp_hands.Hands(min_detection_confidence=0.7, min_tracking_confidence=0.7)
@@ -165,7 +161,6 @@ def main() -> None:
         while True:
             _, img = cap.read()
             img = cv2.flip(img, 1)
-
             imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             results = hands.process(imgRGB)
 
@@ -186,3 +181,4 @@ def main() -> None:
 
 if __name__ == '__main__':
     main()
+    
