@@ -1,20 +1,44 @@
-## AI Fundamentals Group Project
+## Hand Gesture Recognition Control
 
-### Project overview
-Our project is a simple AI model that can detect hand gestures and interpret them into actionable commands. The project is related to computer vision, as it involves processing visual data (live camera input) to recognize a user's hand signs. We will use supervised learning to train the model on a dataset of sign language gestures ***(features, x)*** along with their meanings ***(labels, y)***, which will later be generalized to our live camera input.
- 
-f:x → y, where f is the action linked to the hand gesture
+### Overview
 
-<mark>Frameworks and libraries used:</mark> OpenCV, TensorFlow, Keras
+Part of the CSE 3683 AI Fundamentals class, this project implements a computer vision-based hand gesture recognition system that translates various hand movements into actionable commands. The program offers two different models:
 
------------------------------
+- Presentation Control: Navigate slides and annotate presentations using intuitive hand gestures
+- Desktop Interaction: Control the computer cursor, scroll, zoom, click, and drag using hand motions
 
-### Team Members
+Important libraries: OpenCV, Mediapipe, PyAutoGUI
 
-| Name              | netID  | GitHub                                                                               |
-|-------------------|--------|--------------------------------------------------------------------------------------|
-| Aayam Raj Shakya  | as5160 | [![GitHub](https://skillicons.dev/icons?i=github)](https://github.com/aayamrajshakya)|
-| Juan Miguel Rivera| jar1139| [![GitHub](https://skillicons.dev/icons?i=github)](https://github.com/juanmigrivera) |
-| Tess Harris       | emh585 | [![GitHub](https://skillicons.dev/icons?i=github)](https://github.com/tesseralia)    |
-| Gabriel Asare     | ga436  | [![GitHub](https://skillicons.dev/icons?i=github)](https://github.com/gabrielasare)  |
-| Taylor Pierce     | tkp122 | [![GitHub](https://skillicons.dev/icons?i=github)](https://github.com/tkpierce)      |
+### Installation
+
+1. Clone the repository:
+
+```bash
+git clone https://github.com/aayamrajshakya/Hand_Gesture_Control.git
+cd Hand_Gesture_Control
+```
+
+2. Create an environment and install dependencies:
+
+```bash
+python3.10 -m venv env
+source env/bin/activate
+pip install -r requirements.txt
+```
+
+3. Usage:
+
+```bash
+python main.py --model=[part1|part2]
+```
+
+Part 1 is **Presentation Control** mode and Part 2 is **Desktop Interaction** mode.
+
+> [!TIP]
+> For **Presentation Mode**, please place your ppt slides as images in the `/presentation` folder.
+
+### Gesture Glossary
+
+- Model 1: Presentation Gestures - Right Thumb: for going to the previous page - Right Little: for going to the next page - Right Index & Middle: for showing pointer - Right Index: for drawing - Right Index, Middle, & Ring: for undoing drawing
+  .
+  .
