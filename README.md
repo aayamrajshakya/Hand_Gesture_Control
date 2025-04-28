@@ -39,6 +39,11 @@ Part 1 is **Presentation Control** mode and Part 2 is **Desktop Interaction** mo
 
 ### Gesture Glossary
 
-- Model 1: Presentation Gestures - Right Thumb: for going to the previous page - Right Little: for going to the next page - Right Index & Middle: for showing pointer - Right Index: for drawing - Right Index, Middle, & Ring: for undoing drawing
+- Model 1: Presentation Gestures
+  - Right Thumb: for going to the previous page
+  - Right Little: for going to the next page
+  - Right Index & Middle: for showing pointer
+  - Right Index: for drawing
+  - Right Index, Middle, & Ring: for undoing drawing
   .
   .
