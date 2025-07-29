@@ -21,7 +21,7 @@ opencv-python==4.11.0.86
 opt_einsum==3.4.0
 packaging==24.2
 pillow==11.1.0
-protobuf==4.25.6
+protobuf>=4.25.8
 PyAutoGUI==0.9.54
 pycparser==2.22
 PyGetWindow==0.0.9
